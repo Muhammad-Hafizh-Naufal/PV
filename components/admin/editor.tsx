@@ -10,6 +10,10 @@ import { uploadMediaFromBrowser } from "@/lib/media-upload";
 import type { ContentRow } from "@/lib/admin-data";
 import type { Technology } from "@/lib/types";
 
+function isImageUrl(url: string) {
+  return /\.(?:jpe?g|png|webp)(?:$|[?#])/i.test(url);
+}
+
 function MediaField({
   field,
   initial,
@@ -51,22 +55,26 @@ function MediaField({
         placeholder="Upload a file or paste its storage URL"
         disabled={disabled || busy}
       />
-      {/^https?:\/\//.test(url) && field.type === "image" && (
-        <div className="asset-preview">
-          <Image
-            src={url}
-            alt={`${field.label} preview`}
-            fill
-            sizes="270px"
-            unoptimized
-          />
-        </div>
-      )}
-      {url && field.type === "file" && (
-        <a className="text-link" href={url} target="_blank" rel="noreferrer">
-          View uploaded file <ExternalLink size={13} />
-        </a>
-      )}
+      {/^https?:\/\//.test(url) &&
+        (field.type === "image" ||
+          (field.type === "media" && isImageUrl(url))) && (
+          <div className="asset-preview">
+            <Image
+              src={url}
+              alt={`${field.label} preview`}
+              fill
+              sizes="270px"
+              unoptimized
+            />
+          </div>
+        )}
+      {url &&
+        (field.type === "file" ||
+          (field.type === "media" && !isImageUrl(url))) && (
+          <a className="text-link" href={url} target="_blank" rel="noreferrer">
+            View uploaded file <ExternalLink size={13} />
+          </a>
+        )}
       <label className="text-link" htmlFor={`upload-${field.name}`}>
         <Upload size={13} /> {busy ? "Uploading…" : "Upload file"}
       </label>
@@ -76,15 +84,21 @@ function MediaField({
         accept={
           field.type === "image"
             ? "image/jpeg,image/png,image/webp"
-            : "application/pdf"
+            : field.type === "media"
+              ? "image/jpeg,image/png,image/webp,application/pdf"
+              : "application/pdf"
         }
         disabled={disabled || busy}
         onChange={(e) => void upload(e.target.files?.[0])}
       />
       <small>
         Max. 8 MB.{" "}
-        {field.type === "image" ? "JPEG, PNG, or WebP." : "PDF only."} Files are
-        publicly accessible.
+        {field.type === "image"
+          ? "JPEG, PNG, or WebP."
+          : field.type === "media"
+            ? "JPEG, PNG, WebP, or PDF."
+            : "PDF only."}{" "}
+        Files are publicly accessible.
       </small>
       {message && (
         <span className="upload-status" role="status">
@@ -197,7 +211,9 @@ export function Editor({
                     />
                     {field.label}
                   </label>
-                ) : field.type === "image" || field.type === "file" ? (
+                ) : field.type === "image" ||
+                  field.type === "file" ||
+                  field.type === "media" ? (
                   <MediaField
                     field={field}
                     initial={String(row[field.name] || "")}

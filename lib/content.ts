@@ -14,7 +14,8 @@ export type Field = {
     | "select"
     | "checkbox"
     | "image"
-    | "file";
+    | "file"
+    | "media";
   required?: boolean;
   full?: boolean;
   hint?: string;
@@ -168,9 +169,10 @@ export const collections = {
       },
       {
         name: "asset_url",
-        label: "Certificate (PDF)",
-        type: "file",
+        label: "Certificate image or PDF",
+        type: "media",
         full: true,
+        hint: "Upload a JPG, PNG, or WebP image for a visual preview. PDF files open in a new tab.",
       },
     ],
   },
@@ -256,7 +258,7 @@ export function contentSchema(key: CollectionKey) {
     else if (field.type === "date") schema = dateString;
     else if (field.type === "select")
       schema = z.enum(field.options as [string, ...string[]]);
-    else if (["url", "image", "file"].includes(field.type || ""))
+    else if (["url", "image", "file", "media"].includes(field.type || ""))
       schema = field.required
         ? webUrl.refine(Boolean, "This URL is required.")
         : webUrl;

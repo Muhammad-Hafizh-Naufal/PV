@@ -10,9 +10,9 @@ import {
   Sparkles,
   Terminal,
   Globe2,
-  Plus,
 } from "lucide-react";
 import type { Portfolio } from "@/lib/types";
+import { CertificateGallery } from "./certificate-gallery";
 import { Reveal } from "./motion";
 import { Navbar } from "./navbar";
 import { ProjectCard } from "./project-card";
@@ -291,37 +291,7 @@ export function PortfolioView({ data }: { data: Portfolio }) {
             })}
           </div>
           {certificates.length > 0 && (
-            <details className="certificates">
-              <summary>
-                <span>
-                  Learning, backed by practice{" "}
-                  <small>{certificates.length} certifications</small>
-                </span>
-                <Plus size={19} />
-              </summary>
-              <div className="certificate-list">
-                {certificates.map((c) => (
-                  <div key={c.id}>
-                    <div>
-                      <strong>{c.title}</strong>
-                      <span>
-                        {c.issuer} · {c.year}
-                      </span>
-                    </div>
-                    {(c.credential_url || c.asset_url) && (
-                      <a
-                        href={c.credential_url || c.asset_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`View ${c.title} credential`}
-                      >
-                        <ArrowUpRight size={20} />
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </details>
+            <CertificateGallery certificates={certificates} />
           )}
         </section>
         <section id="contact" className="contact-section">
